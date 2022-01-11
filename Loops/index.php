@@ -171,7 +171,6 @@
             $z = 0;
             for ($j = 0; $j <= 8; $j++) {
                 if ($j > $start && $j < $end) {
-                    // echo $counter;
                     if ($z % 2 == 0) {
                         echo chr($counter);
                         $counter += 1;
