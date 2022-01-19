@@ -36,12 +36,12 @@ if (isset($_POST["registerSubmit"])) {
                 $userRole = ($data[0]['userRole']);
                 if ($password == $userPassword) {
                     if ($userRole == 1) {
-                        echo "test";
-                        $_SESSION['loggedInUser']=$data[0];
+                        $_SESSION['loggedInUser'] = $data[0];
                         header("Location: userPage.php");
                         exit;
                     } else {
-                        echo "admin";
+                        $_SESSION['loggedInUser'] = $data[0];
+                        header("Location: ./admin/index.php");
                     }
                 } else {
                     echo "incorrect password";
