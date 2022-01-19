@@ -1,5 +1,6 @@
 <?php
 session_start();
+include "./config/connect.php";
 if (isset($_POST["registerSubmit"])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -11,53 +12,45 @@ if (isset($_POST["registerSubmit"])) {
     } elseif (strlen($password) < 8 || $password !== $password2) {
         echo "not match passwords";
     } else {
-        $usersArr = [];
-        $newUser = ["email" => $email, "password" => $password];
-        if (isset($_SESSION['usersArr'])) {
-            $exist = false;
-            foreach ($_SESSION['usersArr'] as $value) {
-                if ($value["email"] == $email) {
-                    $exist = true;
-                }
-            }
-            if (!$exist) {
-                array_push($usersArr, $newUser, ...$_SESSION["usersArr"]);
-                $_SESSION["usersArr"] = $usersArr;
-                echo "You have registered successfully";
-            } else {
-                echo "Used Email, Please try with another email";
-            }
-        } else {
-            array_push($usersArr, $newUser);
-            $_SESSION["usersArr"] = $usersArr;
+        try {
+            $sql = "INSERT INTO users ( email,password)
+                    VALUES ('$email','$password')";
+            $conn->exec($sql);
             echo "You have registered successfully";
+        } catch (PDOException $e) {
+            echo $sql . "<br>" . $e->getMessage();
         }
     }
 } elseif (isset($_POST["loginSubmit"])) {
+
     $email = $_POST['email'];
-    $password = $_POST['password'];
+    $userPassword = $_POST['password'];
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "not valid email";
-    } elseif (strlen($password) < 8) {
-        echo "not valid password";
     } else {
-        $prevUsersArr = [];
-        if (isset($_SESSION['usersArr'])) {
-            $prevUsersArr = $_SESSION['usersArr'];
-            $exist = false;
-            foreach ($prevUsersArr as $value) {
-                if ($value['email'] == $email && $value['password'] == $password) {
-                    $exist = true;
+        try {
+            $stmt = $conn->query("SELECT * FROM users WHERE email='$email'");
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (count($data)) {
+                $password = ($data[0]['password']);
+                $userRole = ($data[0]['userRole']);
+                if ($password == $userPassword) {
+                    if ($userRole == 1) {
+                        echo "test";
+                        $_SESSION['loggedInUser']=$data[0];
+                        header("Location: userPage.php");
+                        exit;
+                    } else {
+                        echo "admin";
+                    }
+                } else {
+                    echo "incorrect password";
                 }
-            }
-            if ($exist) {
-                $_SESSION["loggedInUser"] = ["email" => $email, "password" => $password];
-                header("location:userPage.php");
             } else {
-                echo 'Wrong email or password !!';
+                echo "Not a valid credentials";
             }
-        } else {
-            echo "incorrect user credentials please sign up!!";
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
         }
     }
 }
