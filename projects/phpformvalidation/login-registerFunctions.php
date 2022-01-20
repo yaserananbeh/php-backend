@@ -37,11 +37,19 @@ if (isset($_POST["registerSubmit"])) {
                 if ($password == $userPassword) {
                     if ($userRole == 1) {
                         $_SESSION['loggedInUser'] = $data[0];
+                        $currentDate = date("y-m-d  H:i:s");
+                        $userId = $data[0]["id"];
+                        $sql = "UPDATE users SET lastLoginDate= '$currentDate' WHERE id='$userId'";
+                        $conn->exec($sql);
                         header("Location: userPage.php");
                         exit;
                     } else {
                         $_SESSION['loggedInUser'] = $data[0];
-                        header("Location: ./admin/index.php");
+                        $currentDate = date("y-m-d  H:i:s");
+                        $userId = $data[0]["id"];
+                        $sql = "UPDATE users SET lastLoginDate= '$currentDate' WHERE id='$userId'";
+                        $conn->exec($sql);
+                        // header("Location: ./admin/index.php");
                     }
                 } else {
                     echo "incorrect password";

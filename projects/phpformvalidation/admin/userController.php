@@ -243,7 +243,7 @@ if (isset($_POST['submitUpdate'])) {
               </td>
               <td><?php echo $row["createdDAte"]; ?></td>
               <td>
-               <span class="status--process"><?php echo $row["createdDAte"]; ?></span>
+               <span class="status--process"><?php echo $row["lastLoginDate"]; ?></span>
               </td>
               <td>
                <?php echo $row["userRole"] ? "user" : "admin"; ?>
