@@ -16,6 +16,42 @@ if (isset($_POST['submitUpdate'])) {
   $conn->exec($sql);
  }
 }
+// count the users
+$sql = "SELECT id FROM users ORDER BY ID DESC LIMIT 1";
+$result = $conn->query($sql);
+$last_id = $result->fetch()["id"];
+
+function passwordGenerator($passLength)
+{
+ $passChars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYXabcdefghijklmnopqrstuvwxyz!@";
+ $arrOfChars = str_split($passChars);
+ $passwordArr = [];
+ for ($i = 0; $i < $passLength; $i++) {
+  shuffle($arrOfChars);
+  array_push($passwordArr, $arrOfChars[0]);
+ }
+ $password = join("", $passwordArr);
+ return $password;
+}
+
+if (isset($_POST['addNewUser'])) {
+ $newUserEmail = $_POST['newUserEmail'];
+ $newUserRandomPass = $_POST['newUserRandomPass'];
+ if (!filter_var($newUserEmail, FILTER_VALIDATE_EMAIL)) {
+  echo "<script>alert('not valid email')</script>";
+ } elseif (strlen($newUserRandomPass) < 8) {
+  echo "<script>alert('not valid password')</script>";
+ } else {
+  try {
+   $sql = "INSERT INTO users ( email,password)
+                    VALUES ('$newUserEmail','$newUserRandomPass')";
+   $conn->exec($sql);
+   echo "<script>alert('The user added successfully')</script>";
+  } catch (PDOException $e) {
+   echo $sql . "<br>" . $e->getMessage();
+  }
+ }
+}
 
 ?>
 <!DOCTYPE html>
@@ -193,15 +229,49 @@ if (isset($_POST['submitUpdate'])) {
       <div class="row">
        <div class="col-md-12">
         <!-- DATA TABLE -->
-        <h3 class="title-5 m-b-35">data table</h3>
+        <h3 class="title-5 m-b-35">User Controller</h3>
         <div class="table-data__tool">
          <div class="table-data__tool-left">
-          <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
 
-           <button class="au-btn au-btn-icon au-btn--green au-btn--small">
-            <i class="zmdi zmdi-plus" name="showAddNewUser"></i>add user</button>
+          <div class="col-lg-12">
+           <div class="card">
+            <div class="card-header">Add New User Form</div>
+            <div class="card-body card-block">
+             <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="">
+              <div class="form-group">
+               <div class="input-group">
+                <input type="text" id="newUserId" name="newUserId" class="form-control" value="<?php echo $last_id + 1; ?>" disabled>
 
-          </form>
+                <div class="input-group-addon">
+                 <i class="fa fa-user"></i>
+                </div>
+               </div>
+              </div>
+              <div class="form-group">
+               <div class="input-group">
+                <input type="email" id="newUserEmail" name="newUserEmail" class="form-control">
+                <div class="input-group-addon">
+                 <i class="fa fa-envelope"></i>
+                </div>
+               </div>
+              </div>
+              <div class="form-group">
+               <div class="input-group">
+                <input id="newUserRandomPass" autocomplete="off" name="newUserRandomPass" class="form-control" value="<?php echo passwordGenerator(14); ?>">
+                <div class="input-group-addon">
+                 <i class="fa fa-asterisk"></i>
+                </div>
+               </div>
+              </div>
+              <div class="form-actions form-group">
+               <button type="submit" class="btn btn-secondary btn-sm" name="addNewUser">Add</button>
+              </div>
+             </form>
+            </div>
+           </div>
+          </div>
+
+
          </div>
 
         </div>
